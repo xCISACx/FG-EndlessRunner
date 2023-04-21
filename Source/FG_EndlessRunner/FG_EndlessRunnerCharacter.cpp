@@ -174,29 +174,6 @@ void AFG_EndlessRunnerCharacter::Tick(float DeltaSeconds)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
 			FString::Printf(TEXT("CanJump: %s"), CanJump() ? TEXT("True") : TEXT("False")));
 	}
-
-	AFG_EndlessRunnerGameMode* MyGameMode = GetWorld()->GetAuthGameMode<AFG_EndlessRunnerGameMode>();
-
-	FVector MovementDirection = FVector(1.f, 0.f, 0.f); // Move in X direction
-	
-	UPrimitiveComponent* PlayerComponent = Cast<UPrimitiveComponent>(GetRootComponent());
-	
-	if (PlayerComponent)
-	{
-		FVector GroundForce = MovementDirection * GameMode->Speed * DeltaSeconds;
-		FVector Velocity = MovementDirection * GameMode->Speed;
-		PlayerComponent->SetPhysicsLinearVelocity(Velocity, false);
-		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Adding force to ground");
-	}
-	
-	// Get a reference to the movement component
-	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
-
-	// Print the current movement mode
-	UE_LOG(LogTemp, Warning, TEXT("Current movement mode: %d"), MovementComponent->MovementMode.GetValue());
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("Pressed Jump: %s"), ACharacter::bPressedJump ? TEXT("True") : TEXT("False")));
 }
 
 void AFG_EndlessRunnerCharacter::Jump()
@@ -214,9 +191,7 @@ void AFG_EndlessRunnerCharacter::OnTriggerBoxOverlap(UPrimitiveComponent* Overla
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "AAAAAAAAAAAAAAAAAAAAA");
 	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherActor->GetName());
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherComp->GetName());
-
-	OtherActor->GetClass()
+	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherComp->GetName())
 
 	if (OtherComp->ComponentHasTag("GroundTriggerBox"))
 	{
