@@ -49,13 +49,19 @@ void ABaseObstacle::OnCollisionBoxOverlap(UPrimitiveComponent* OverlappedCompone
 
 	if (OtherActor->ActorHasTag("Player"))
 	{
+		AFG_EndlessRunnerCharacter* Player;
+		Player = Cast<AFG_EndlessRunnerCharacter>(OtherActor);
+		
 		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "hit player");
 		
 		if (GameMode != nullptr)
 		{
-			GameMode->UpdateLives(-1);
-			GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "updating lives");
-			GameMode->TogglePlayerInvincibility(true, 2.f);
+			if (!Player->bIsInvincible)
+			{
+				GameMode->UpdateLives(-1);
+				GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "updating lives");	
+			}
+			GameMode->TogglePlayerInvincibility(true);
 			this->Destroy();
 		}
 	}

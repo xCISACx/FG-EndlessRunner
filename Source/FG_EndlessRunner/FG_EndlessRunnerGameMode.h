@@ -86,6 +86,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	int Lives = 3;
+	
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	float InvincibilityDuration = 2.f;
 
 	UFUNCTION(BlueprintCallable)
 	void TogglePhysics(bool Value);
@@ -109,7 +112,7 @@ public:
 	void UpdateLives(int Value);
 
 	UFUNCTION(BlueprintCallable)
-	void TogglePlayerInvincibility(bool Value, float Duration);
+	void TogglePlayerInvincibility(bool Value);
 
 	UFUNCTION(BlueprintCallable)
 	void ClearObstacles(AGroundTile* Tile);

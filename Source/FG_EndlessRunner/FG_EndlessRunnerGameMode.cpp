@@ -65,8 +65,8 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 	{
 		// Assign the player to the player property
 		Player = MyPlayer;
-		Player->GetCapsuleComponent()->SetSimulatePhysics(false);
-		Player->GetCapsuleComponent()->SetSimulatePhysics(true);
+		/*Player->GetCapsuleComponent()->SetSimulatePhysics(false);
+		Player->GetCapsuleComponent()->SetSimulatePhysics(true);*/
 	}
 
 	AGroundTilesParent* NewGroundTilesParent = World->SpawnActor<AGroundTilesParent>(GroundTilesParentClass, NextSpawnPoint);
@@ -136,7 +136,7 @@ void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
 	{
 		LaneSwitchValues.Add(Tile->LeftLane->GetComponentLocation().Y);
 		LaneSwitchValues.Add(Tile->CenterLane->GetComponentLocation().Y);
-		LaneSwitchValues.Add(Tile->RightLane->GetComponentLocation().Y);    
+		LaneSwitchValues.Add(Tile->RightLane->GetComponentLocation().Y);
 	}
 
 	for (int i = 0; i < NumInitialGroundTiles; i++)
@@ -144,7 +144,7 @@ void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
 		AGroundTile* SpawnedTile = SpawnGroundTile();
         
 		SpawnObstacles(SpawnedTile, 0);
-		SpawnObstacles(SpawnedTile, 1);
+		//SpawnObstacles(SpawnedTile, 1);  //let's leave the center lane empty for now since we can't jump
 		SpawnObstacles(SpawnedTile, 2);
 	}
 }
@@ -232,7 +232,7 @@ void AFG_EndlessRunnerGameMode::RecycleTile(AGroundTile* Tile)
 	GroundTiles.Add(Tile);
 
 	SpawnObstacles(Tile, 0);
-	SpawnObstacles(Tile, 1);
+	//SpawnObstacles(Tile, 1);
 	SpawnObstacles(Tile, 2);
 }
 
@@ -242,7 +242,7 @@ void AFG_EndlessRunnerGameMode::UpdateLives(int Value)
 	//LivesText->SetText(FText::FromString("Lives: " + Lives));
 }
 
-void AFG_EndlessRunnerGameMode::TogglePlayerInvincibility(bool Value, float Duration)
+void AFG_EndlessRunnerGameMode::TogglePlayerInvincibility(bool Value)
 {
 	if (Player)
 	{
@@ -252,18 +252,19 @@ void AFG_EndlessRunnerGameMode::TogglePlayerInvincibility(bool Value, float Dura
 
 		GetWorldTimerManager().SetTimer(DestroyTimerHandle, [this, Value]() {
 			Player->bIsInvincible = !Value;
-		}, Duration, false);
+		}, InvincibilityDuration, false);
 	}
 }
 
 void AFG_EndlessRunnerGameMode::ClearObstacles(AGroundTile* Tile)
 {
-	for (ABaseObstacle* Obstacle : Tile->Obstacles)
+	for (int32 i = Tile->Obstacles.Num() - 1; i >= 0; i--)
 	{
+		ABaseObstacle* Obstacle = Tile->Obstacles[i];
 		if (Obstacle)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Clearing obstacles from " + Tile->GetName());
-			Tile->Obstacles.Remove(Obstacle);
+			Tile->Obstacles.RemoveAt(i);
 			Obstacle->Destroy();
 		}
 	}
