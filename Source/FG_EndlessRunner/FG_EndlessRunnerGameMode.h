@@ -88,6 +88,9 @@ public:
 	int Lives = 3;
 
 	UFUNCTION(BlueprintCallable)
+	void TogglePhysics(bool Value);
+
+	UFUNCTION(BlueprintCallable)
 	void CreateInitialGroundTiles();
 
 	UFUNCTION(BlueprintCallable)

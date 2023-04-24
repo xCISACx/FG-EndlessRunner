@@ -34,6 +34,20 @@ AFG_EndlessRunnerGameMode::AFG_EndlessRunnerGameMode()
 void AFG_EndlessRunnerGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	FTimerHandle TimerHandle1, TimerHandle2;
+
+	//This needs to be done because the character won't recognise it's grounded unless the state of SimulatePhysics is reset.
+
+	bool bValue = false;
+	
+	// Wait for 1 second, then toggle physics to true
+	GetWorldTimerManager().SetTimer(TimerHandle1, [this, bValue]() { TogglePhysics(bValue); }, 0.2f, false);
+
+	bValue = true;
+	
+	// Wait for another second, then toggle physics to false
+	GetWorldTimerManager().SetTimer(TimerHandle2, [this, bValue]() { TogglePhysics(bValue); }, 0.3f, false);
 
 	UWorld* World = GetWorld();
 
@@ -103,6 +117,15 @@ void AFG_EndlessRunnerGameMode::Tick(float DeltaSeconds)
 			Player->SetActorLocation(LerpTarget);
 		}
 	}
+}
+
+void AFG_EndlessRunnerGameMode::TogglePhysics(bool Value)
+{
+	bool bIsSimulatingPhysics = Player->GetCapsuleComponent()->IsSimulatingPhysics();
+	FString PhysicsState = bIsSimulatingPhysics ? TEXT("true") : TEXT("false");
+	
+	Player->GetCapsuleComponent()->SetSimulatePhysics(Value);
+	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, FString::Printf(TEXT("IsSimulatingPhysics: %s"), *PhysicsState));
 }
 
 void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
