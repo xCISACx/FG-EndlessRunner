@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseObstacle.h"
 #include "GameFramework/Actor.h"
 #include "Components/ArrowComponent.h" 
 #include "GroundTile.generated.h"
@@ -38,7 +39,19 @@ public:
 	UArrowComponent* RightLane;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	float CenterLaneY;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	float LeftLaneY;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	float RightLaneY;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UBoxComponent* GroundTriggerBox;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
+	TArray<ABaseObstacle*> Obstacles;
 
 	DECLARE_EVENT(AGroundTile, FOnTileOverlap);
 	FOnTileOverlap OnTileOverlap;

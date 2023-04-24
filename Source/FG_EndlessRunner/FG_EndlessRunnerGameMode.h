@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseObstacle.h"
 #include "FG_EndlessRunnerCharacter.h"
 #include "WalkingPlane.h"
 #include "Engine/StaticMeshActor.h"
@@ -30,12 +31,21 @@ public:
 	TSubclassOf<AWalkingPlane> WalkingPlaneClass;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<ABaseObstacle> SmallObstacleClass;
+
+	/*UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<UUserWidget> UIWidgetClass;*/
+
+	/*UPROPERTY(EditAnywhere, Category = "Config")
+	UTextBlock* LivesText;*/
+
+	UPROPERTY(EditAnywhere, Category = "Config")
 	int32 NumInitialGroundTiles = 10;
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
 	FTransform NextSpawnPoint;
 
-	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
+	UPROPERTY(EditAnywhere, Category = "Runtime")
 	TArray<float> LaneSwitchValues;
 	
 	UPROPERTY(EditAnywhere, Category = "Runtime")
@@ -74,6 +84,9 @@ public:
 	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
 	AFG_EndlessRunnerCharacter* Player;
 
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	int Lives = 3;
+
 	UFUNCTION(BlueprintCallable)
 	void CreateInitialGroundTiles();
 
@@ -81,10 +94,22 @@ public:
 	void SwitchToLane(int Value);
 
 	UFUNCTION(BlueprintCallable)
-	AGroundTile* AddGroundTile();
+	AGroundTile* SpawnGroundTile();
+	
+	UFUNCTION(BlueprintCallable)
+	void SpawnObstacles(AGroundTile* Tile, int laneIndex);
 
 	UFUNCTION(BlueprintCallable)
 	void RecycleTile(AGroundTile* Tile);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateLives(int Value);
+
+	UFUNCTION(BlueprintCallable)
+	void TogglePlayerInvincibility(bool Value, float Duration);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearObstacles(AGroundTile* Tile);
 
 protected:
 	virtual void BeginPlay() override;

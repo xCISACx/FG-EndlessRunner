@@ -71,6 +71,10 @@ void AGroundTile::BeginPlay()
 	check(GameMode);
 
 	GroundTriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGroundTile::OnTriggerBoxOverlap);
+
+	LeftLaneY = LeftLane->GetComponentLocation().Y;
+	CenterLaneY = CenterLane->GetComponentLocation().Y;
+	RightLaneY = RightLane->GetComponentLocation().Y;
 }
 
  //Called every frame

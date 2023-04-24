@@ -43,6 +43,9 @@ class AFG_EndlessRunnerCharacter : public ACharacter
 
 public:
 	AFG_EndlessRunnerCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+	bool bIsInvincible = false;
 	
 
 protected:

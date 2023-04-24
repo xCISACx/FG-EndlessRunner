@@ -170,9 +170,9 @@ void AFG_EndlessRunnerCharacter::Tick(float DeltaSeconds)
 		/*GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
 			FString::Printf(TEXT("IsFalling: %s"), MyCharacterMovement->IsFalling() ? TEXT("True") : TEXT("False")));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("IsJumpingAllowed: %s"), MyCharacterMovement->IsJumpAllowed() ? TEXT("True") : TEXT("False")));*/
+			FString::Printf(TEXT("IsJumpingAllowed: %s"), MyCharacterMovement->IsJumpAllowed() ? TEXT("True") : TEXT("False")));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("CanJump: %s"), CanJump() ? TEXT("True") : TEXT("False")));
+			FString::Printf(TEXT("CanJump: %s"), CanJump() ? TEXT("True") : TEXT("False")));*/
 	}
 }
 
@@ -196,6 +196,7 @@ void AFG_EndlessRunnerCharacter::OnTriggerBoxOverlap(UPrimitiveComponent* Overla
 	if (OtherComp->ComponentHasTag("GroundTriggerBox"))
 	{
 		AGroundTile* Tile = Cast<AGroundTile>(OtherActor);
+		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Passed by: " + OtherActor->GetName());
 
 		if (Tile)
 		{
