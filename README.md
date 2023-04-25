@@ -14,7 +14,7 @@ I also used Unreal's container classes and methods to:
 
 - Store a list of ground tiles so they can be pooled instead of destroyed.
 
-- Store a list of obstacles for each tile so they can be destroyed and re-spawned differently when the tile is recylced.
+- Store a list of obstacles for each tile so they can be destroyed and re-spawned differently when the tile is recycled.
 
 Known Bugs/Issues:
 
@@ -22,7 +22,7 @@ Known Bugs/Issues:
 
 - The character won't think it's grounded in the build when it does in the engine, so jumping can't be tested.
 
-- Sometimes the build will run at very low FPS. Restarting it fixes this. Not sure what causes it since it works fine in the engine.
+- Sometimes the build will run at very low FPS. Waiting for a while fixed this. Not sure what causes it since it works fine in the engine. Shader compilation?
 
 - Center lane obstacles have been removed since the player can't jump.
 
