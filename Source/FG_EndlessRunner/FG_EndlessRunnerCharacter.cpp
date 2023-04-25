@@ -81,11 +81,47 @@ void AFG_EndlessRunnerCharacter::BeginPlay()
 		}
 	}
 
+	DefaultCapsuleHalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	DefaultCapsuleRadius = GetCapsuleComponent()->GetUnscaledCapsuleRadius();
+
 	
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+
+
+
+void AFG_EndlessRunnerCharacter::Slide()
+{
+	float SlideCapsuleHalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	float SlideCapsuleRadius = GetCapsuleComponent()->GetUnscaledCapsuleRadius();
+
+	// Reduce the size of the capsule
+	GetCapsuleComponent()->SetCapsuleHalfHeight(SlideCapsuleHalfHeight / 2.f, false);
+	GetCapsuleComponent()->SetCapsuleRadius(SlideCapsuleRadius);
+
+	bIsSliding = true;
+	
+	FTimerHandle SlideTimerHandle;
+
+	// Set a timer to reset the capsule size after the slide duration
+	GetWorldTimerManager().SetTimer(SlideTimerHandle, this, &AFG_EndlessRunnerCharacter::ResetCapsuleSize, SlideDuration, false);
+}
+
+void AFG_EndlessRunnerCharacter::ResetCapsuleSize()
+ {
+ 	// Reset the size of the capsule
+ 	GetCapsuleComponent()->SetCapsuleHalfHeight(DefaultCapsuleHalfHeight, false);
+ 	GetCapsuleComponent()->SetCapsuleRadius(DefaultCapsuleRadius);
+ 
+ 	bIsSliding = false;
+ }
+
+void AFG_EndlessRunnerCharacter::StopSliding()
+{
+	ResetCapsuleSize();
+}
 
 void AFG_EndlessRunnerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -100,6 +136,10 @@ void AFG_EndlessRunnerCharacter::SetupPlayerInputComponent(class UInputComponent
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Move);
+
+		//Sliding
+		EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Slide);
+		//EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Completed, this, &AFG_EndlessRunnerCharacter::StopSliding);
 
 		//Looking
 		//EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Look);
@@ -172,8 +212,20 @@ void AFG_EndlessRunnerCharacter::Tick(float DeltaSeconds)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
 			FString::Printf(TEXT("IsJumpingAllowed: %s"), MyCharacterMovement->IsJumpAllowed() ? TEXT("True") : TEXT("False")));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("CanJump: %s"), CanJump() ? TEXT("True") : TEXT("False")));*/
+			FString::Printf(TEXT("CanJump: %s"), CanJump() ? TEXT("True") : TEXT("False")));
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+			FString::Printf(TEXT("IsMovingOnGround: %s"), GetCharacterMovement()->IsMovingOnGround() ? TEXT("True") : TEXT("False")));*/
 	}
+
+	/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance)
+	{
+		AnimInstance->IsSliding(TEXT("bIsSliding"), true);
+	}*/
+
+	
 }
 
 void AFG_EndlessRunnerCharacter::Jump()
@@ -181,7 +233,7 @@ void AFG_EndlessRunnerCharacter::Jump()
 	if (CanJump())
 	{
 		Super::Jump();
-		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Blue, "JUMP");
+		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Blue, "JUMP");
 	}
 }
 

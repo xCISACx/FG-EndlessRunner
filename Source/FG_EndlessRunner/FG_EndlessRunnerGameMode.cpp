@@ -35,7 +35,7 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	FTimerHandle TimerHandle1, TimerHandle2;
+	/*FTimerHandle TimerHandle1, TimerHandle2;
 
 	//This needs to be done because the character won't recognise it's grounded unless the state of SimulatePhysics is reset.
 
@@ -47,7 +47,7 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 	bValue = true;
 	
 	// Wait for another second, then toggle physics to false
-	GetWorldTimerManager().SetTimer(TimerHandle2, [this, bValue]() { TogglePhysics(bValue); }, 0.3f, false);
+	GetWorldTimerManager().SetTimer(TimerHandle2, [this, bValue]() { TogglePhysics(bValue); }, 0.3f, false);*/
 
 	UWorld* World = GetWorld();
 
@@ -56,8 +56,6 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 	WalkingPlane = NewWalkingPlane;
 
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-
-	Plane = FindObject<AStaticMeshActor>(GetWorld(), TEXT("Plane"));
 	
 	AFG_EndlessRunnerCharacter* MyPlayer = Cast<AFG_EndlessRunnerCharacter>(PlayerCharacter);
 
@@ -144,7 +142,7 @@ void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
 		AGroundTile* SpawnedTile = SpawnGroundTile();
         
 		SpawnObstacles(SpawnedTile, 0);
-		//SpawnObstacles(SpawnedTile, 1);  //let's leave the center lane empty for now since we can't jump
+		SpawnObstacles(SpawnedTile, 1);
 		SpawnObstacles(SpawnedTile, 2);
 	}
 }
@@ -210,9 +208,24 @@ void AFG_EndlessRunnerGameMode::SpawnObstacles(AGroundTile* Tile, int laneIndex)
 
 		if (UKismetMathLibrary::InRange_FloatFloat(RandVal, 0.5f, 1.f, true, true))
 		{
-			ABaseObstacle* Obstacle = GetWorld()->SpawnActor<ABaseObstacle>(SmallObstacleClass, SpawnLocation, SpawnParameters);
-			Obstacle->AttachToComponent(Lane, FAttachmentTransformRules::KeepRelativeTransform);
-			Obstacle->SetActorRelativeLocation(FVector(0.f, 0.f, 0));
+			const float RandValType = FMath::FRandRange(0.f, 1.f);
+
+			ABaseObstacle* Obstacle;
+			
+			if (UKismetMathLibrary::InRange_FloatFloat(RandValType, 0.5f, 1.f, true, true))
+			{
+				Obstacle = GetWorld()->SpawnActor<ABaseObstacle>(ShortObstacleClass, SpawnLocation, SpawnParameters);
+				Obstacle->AttachToComponent(Lane, FAttachmentTransformRules::KeepRelativeTransform);
+				Obstacle->SetActorRelativeLocation(FVector(0.f, 0.f, 0));
+			}
+			else
+			{
+				Obstacle = GetWorld()->SpawnActor<ABaseObstacle>(TallObstacleClass, SpawnLocation, SpawnParameters);
+				Obstacle->AttachToComponent(Lane, FAttachmentTransformRules::KeepRelativeTransform);
+				Obstacle->SetActorRelativeLocation(FVector(0.f, 0.f, TallObstacleZOffset));
+			}
+			
+			
 			Tile->Obstacles.Add(Obstacle);
 
 			//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Spawning obstacle on : " + Tile->GetName());
@@ -232,7 +245,7 @@ void AFG_EndlessRunnerGameMode::RecycleTile(AGroundTile* Tile)
 	GroundTiles.Add(Tile);
 
 	SpawnObstacles(Tile, 0);
-	//SpawnObstacles(Tile, 1);
+	SpawnObstacles(Tile, 1);
 	SpawnObstacles(Tile, 2);
 }
 

@@ -38,14 +38,30 @@ class AFG_EndlessRunnerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	/** Slide Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SlideAction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* TriggerBox;
+	class UBoxComponent* TriggerBox;;
 
 public:
 	AFG_EndlessRunnerCharacter();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
 	bool bIsInvincible = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+	bool bIsSliding = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	float DefaultCapsuleHalfHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	float DefaultCapsuleRadius;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	float SlideDuration = 0.5f;
 	
 
 protected:
@@ -68,6 +84,10 @@ protected:
 			
 
 protected:
+	void ResetCapsuleSize();
+	void Slide();
+	void ResetSlideState();
+	void StopSliding();
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	

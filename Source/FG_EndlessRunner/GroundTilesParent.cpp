@@ -55,6 +55,7 @@ void AGroundTilesParent::Tick(float DeltaTime)
 	{
 		FVector GroundForce = MovementDirection * GameMode->Speed * DeltaTime;
 		FVector Velocity = MovementDirection * GameMode->Speed;
+		//SetActorLocation(GetActorLocation() - Velocity / 600);
 		PrimitiveRootComponent->SetPhysicsLinearVelocity(-Velocity, false);
 		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Adding force to ground");
 	}

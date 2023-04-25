@@ -31,7 +31,10 @@ public:
 	TSubclassOf<AWalkingPlane> WalkingPlaneClass;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
-	TSubclassOf<ABaseObstacle> SmallObstacleClass;
+	TSubclassOf<ABaseObstacle> ShortObstacleClass;
+
+	UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<ABaseObstacle> TallObstacleClass;
 
 	/*UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<UUserWidget> UIWidgetClass;*/
@@ -59,6 +62,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	float LanesSwitchingCooldown = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	float TallObstacleZOffset = 150.f;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	AStaticMeshActor* Plane; 
