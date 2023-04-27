@@ -1,17 +1,17 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FG_EndlessRunnerCharacter.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "FG_EndlessRunnerGameMode.h"
+#include "GroundTile.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "GroundTile.h"
-#include "FG_EndlessRunnerGameMode.h"
-#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -22,6 +22,14 @@ AFG_EndlessRunnerCharacter::AFG_EndlessRunnerCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AFG_EndlessRunnerCharacter::OnCollisionBoxOverlap);
+	
+	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionCapsule"));
+	CollisionCapsule->InitCapsuleSize(42.f, 96.f);
+	CollisionCapsule->SetupAttachment(RootComponent);
+	CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionCapsule->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	//CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &AFG_EndlessRunnerCharacter::OnCollisionBoxOverlap);
 
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	TriggerBox->SetBoxExtent(FVector(32.0f, 32.0f, 88.0f));
@@ -81,10 +89,9 @@ void AFG_EndlessRunnerCharacter::BeginPlay()
 		}
 	}
 
-	DefaultCapsuleHalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
-	DefaultCapsuleRadius = GetCapsuleComponent()->GetUnscaledCapsuleRadius();
-
-	
+	DefaultCapsuleHalfHeight = CollisionCapsule->GetUnscaledCapsuleHalfHeight();
+	DefaultCapsuleRadius = CollisionCapsule->GetUnscaledCapsuleRadius();
+	//DefaultCapsuleLocation = CollisionCapsule->getlocation();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,8 +105,9 @@ void AFG_EndlessRunnerCharacter::Slide()
 	float SlideCapsuleRadius = GetCapsuleComponent()->GetUnscaledCapsuleRadius();
 
 	// Reduce the size of the capsule
-	GetCapsuleComponent()->SetCapsuleHalfHeight(SlideCapsuleHalfHeight / 2.f, false);
-	GetCapsuleComponent()->SetCapsuleRadius(SlideCapsuleRadius);
+	CollisionCapsule->SetCapsuleHalfHeight(SlideCapsuleHalfHeight / 3.f, false);
+	CollisionCapsule->SetCapsuleRadius(SlideCapsuleRadius);
+	CollisionCapsule->SetRelativeLocation(FVector(0, 0, -SlideCapsuleHalfHeight /2.f));
 
 	bIsSliding = true;
 	
@@ -112,8 +120,9 @@ void AFG_EndlessRunnerCharacter::Slide()
 void AFG_EndlessRunnerCharacter::ResetCapsuleSize()
  {
  	// Reset the size of the capsule
- 	GetCapsuleComponent()->SetCapsuleHalfHeight(DefaultCapsuleHalfHeight, false);
- 	GetCapsuleComponent()->SetCapsuleRadius(DefaultCapsuleRadius);
+ 	CollisionCapsule->SetCapsuleHalfHeight(DefaultCapsuleHalfHeight, false);
+ 	CollisionCapsule->SetCapsuleRadius(DefaultCapsuleRadius);
+	CollisionCapsule->SetRelativeLocation(FVector(0,0,0));
  
  	bIsSliding = false;
  }
@@ -132,13 +141,13 @@ void AFG_EndlessRunnerCharacter::SetupPlayerInputComponent(class UInputComponent
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Bound jump");
+		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Bound jump");
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Move);
 
 		//Sliding
-		EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Slide);
+		EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Started, this, &AFG_EndlessRunnerCharacter::Slide);
 		//EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Completed, this, &AFG_EndlessRunnerCharacter::StopSliding);
 
 		//Looking
@@ -248,10 +257,63 @@ void AFG_EndlessRunnerCharacter::OnTriggerBoxOverlap(UPrimitiveComponent* Overla
 	if (OtherComp->ComponentHasTag("GroundTriggerBox"))
 	{
 		AGroundTile* Tile = Cast<AGroundTile>(OtherActor);
-		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Passed by: " + OtherActor->GetName());
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, "Passed by: " + OtherActor->GetName());
 
 		if (Tile)
 		{
+			GameMode->RecycleTile(Tile);
+		}
+	}
+}
+
+void AFG_EndlessRunnerCharacter::OnCollisionBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "AAAAAAAAAAAAAAAAAAAAA");
+	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherActor->GetName() + "aaaaaaaaaa");
+	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherComp->GetName());
+
+	if (OtherComp->ComponentHasTag("GroundTriggerBox"))
+	{
+		AGroundTile* Tile = Cast<AGroundTile>(OtherActor);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, "Passed by: " + OtherActor->GetName());
+
+		if (Tile)
+		{
+			if (Tile->Obstacles.Num() != 0)
+			{
+				for (ABaseObstacle* Obstacle : Tile->Obstacles)
+				{
+					if (Obstacle && Obstacle->WasHit)
+					{
+						Tile->AnyObstacleHit = true;
+					}
+				}
+				
+				if (Tile->Obstacles.Num() > 1 && !Tile->AnyObstacleHit)
+				{
+					GameMode->UpdateScore(+GameMode->ScoreIncrease);
+
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Score: " + FString::FromInt(GameMode->Score));
+					
+					const int RandVal = FMath::RandRange(0, 1);
+
+					if (RandVal <= 0.25)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Passed 25% chance");
+						GameMode->RemoveRandomObstacle();
+					}
+					else
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Purple, "Failed 25% chance");
+					}
+				}
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Not removing obstacle since player didn't dodge");
+				}
+			}
+			
 			GameMode->RecycleTile(Tile);
 		}
 	}

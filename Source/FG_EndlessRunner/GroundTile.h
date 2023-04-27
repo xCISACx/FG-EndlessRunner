@@ -50,6 +50,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UBoxComponent* GroundTriggerBox;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	bool AnyObstacleHit;
+
 	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
 	TArray<ABaseObstacle*> Obstacles;
 

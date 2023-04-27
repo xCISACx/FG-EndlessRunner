@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GroundTile.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Components/BoxComponent.h"
@@ -43,7 +44,10 @@ class AFG_EndlessRunnerCharacter : public ACharacter
 	class UInputAction* SlideAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* TriggerBox;;
+	class UBoxComponent* TriggerBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
+	class UCapsuleComponent* CollisionCapsule;
 
 public:
 	AFG_EndlessRunnerCharacter();
@@ -59,6 +63,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	float DefaultCapsuleRadius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	FVector DefaultCapsuleLocation;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	float SlideDuration = 0.5f;
@@ -75,9 +82,14 @@ protected:
 	virtual void Jump() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-
+	
 	UFUNCTION(BlueprintCallable)
 	void OnTriggerBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+	void OnCollisionBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	                           UPrimitiveComponent* OtherComp,
+	                           int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(VisibleInstanceOnly)
 	class AFG_EndlessRunnerGameMode* GameMode;

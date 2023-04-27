@@ -81,6 +81,5 @@ void AGroundTile::BeginPlay()
 void AGroundTile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

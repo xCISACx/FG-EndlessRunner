@@ -28,7 +28,7 @@ void ABaseObstacle::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseObstacle::OnCollisionBoxOverlap);
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseObstacle::OnCollisionBoxBeginOverlap);
 
 	GameMode = Cast<AFG_EndlessRunnerGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
@@ -42,24 +42,27 @@ void ABaseObstacle::Tick(float DeltaTime)
 
 }
 
-void ABaseObstacle::OnCollisionBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ABaseObstacle::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == this && OtherActor == GetOwner()) return;
 
+	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherActor->GetName() + " hit an obstacle");
+
 	if (OtherActor->ActorHasTag("Player"))
 	{
-		AFG_EndlessRunnerCharacter* Player;
-		Player = Cast<AFG_EndlessRunnerCharacter>(OtherActor);
+		AFG_EndlessRunnerCharacter* Player = Cast<AFG_EndlessRunnerCharacter>(OtherActor);
 		
-		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "hit player");
+		GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "hit " + Player->GetName());
 		
 		if (GameMode != nullptr)
 		{
 			if (!Player->bIsInvincible)
 			{
 				GameMode->UpdateLives(-1);
-				GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "updating lives");	
+				GameMode->UpdateScore(-ScoreDecrease);
+				GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "updating lives");
+				WasHit = true;
 			}
 			GameMode->TogglePlayerInvincibility(true);
 			this->Destroy();

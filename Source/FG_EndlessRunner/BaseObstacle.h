@@ -25,11 +25,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
 	class UBoxComponent* CollisionComponent;
 
-public:	
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+	bool WasHit = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+	int ScoreDecrease;
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnCollisionBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

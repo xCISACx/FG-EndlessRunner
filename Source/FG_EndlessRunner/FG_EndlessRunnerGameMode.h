@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<ABaseObstacle> TallObstacleClass;
 
+	UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<UUserWidget> UIBlueprint;
+
 	/*UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<UUserWidget> UIWidgetClass;*/
 
@@ -75,6 +78,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Config")
 	AWalkingPlane* WalkingPlane;
 
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	float Score = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	int ScoreIncrease;
+
 	UPROPERTY(EditAnywhere, Category = "Config")
 	float Speed = 600.f;
 
@@ -89,6 +98,9 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
 	AFG_EndlessRunnerCharacter* Player;
+
+	UPROPERTY(EditAnywhere, Category = "Config")
+	UUserWidget* UI;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	int Lives = 3;
@@ -112,10 +124,16 @@ public:
 	void SpawnObstacles(AGroundTile* Tile, int laneIndex);
 
 	UFUNCTION(BlueprintCallable)
+	void RemoveRandomObstacle();
+
+	UFUNCTION(BlueprintCallable)
 	void RecycleTile(AGroundTile* Tile);
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateLives(int Value);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateScore(float Value);
 
 	UFUNCTION(BlueprintCallable)
 	void TogglePlayerInvincibility(bool Value);
