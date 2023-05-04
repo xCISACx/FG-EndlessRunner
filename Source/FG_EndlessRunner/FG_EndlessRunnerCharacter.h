@@ -22,26 +22,6 @@ class AFG_EndlessRunnerCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-	
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction;
-
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
-
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
-
-	/** Slide Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* SlideAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* TriggerBox;
@@ -52,11 +32,36 @@ class AFG_EndlessRunnerCharacter : public ACharacter
 public:
 	AFG_EndlessRunnerCharacter();
 
+	/*/** Jump Input Action #1#
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* JumpAction;
+
+	/** Move Input Action #1#
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MoveAction;
+
+	/** Look Input Action #1#
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LookAction;
+
+	/** Slide Input Action #1#
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SlideAction;*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	int PlayerID = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
 	bool bIsInvincible = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
 	bool bIsSliding = false;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	bool CanSwitchLanes = true;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	bool IsSwitchingLanes = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	float DefaultCapsuleHalfHeight;
@@ -69,17 +74,19 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	float SlideDuration = 0.5f;
-	
 
-protected:
+	virtual void Jump() override;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+	void ResetLaneSwitch();
+
+	void Slide();
+
+protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-
-	virtual void Jump() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 	
@@ -97,7 +104,6 @@ protected:
 
 protected:
 	void ResetCapsuleSize();
-	void Slide();
 	void ResetSlideState();
 	void StopSliding();
 	// APawn interface

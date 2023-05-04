@@ -6,7 +6,9 @@
 
 #include "CoreMinimal.h"
 #include "BaseObstacle.h"
+#include "EndlessRunnerSaveGame.h"
 #include "FG_EndlessRunnerCharacter.h"
+#include "GameOver.h"
 #include "GroundTile.h"
 #include "GroundTilesParent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -14,6 +16,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "../../Plugins/Developer/RiderLink/Source/RD/thirdparty/clsocket/src/StatTimer.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Overlay.h"
@@ -35,18 +38,13 @@ AFG_EndlessRunnerGameMode::AFG_EndlessRunnerGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-
+	
 	PrimaryActorTick.bCanEverTick = true;
 }
+
 void AFG_EndlessRunnerGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Spawn player 2
-	APlayerStart* PlayerStart2 = Cast<APlayerStart>(FindPlayerStart(2), APlayerStart::StaticClass()));
-	ACharacter* Player2 = GetWorld()->SpawnActor<ACharacter>(DefaultPawnClass, PlayerStart2->GetActorLocation(), PlayerStart2->GetActorRotation());
-	APlayerController* PlayerController2 = GetWorld()->SpawnActor<APlayerController>(PlayerControllerClass);
-	PlayerController2->Possess(Player2);
 	
 	/*FTimerHandle TimerHandle1, TimerHandle2;
 
@@ -64,9 +62,9 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 
 	UWorld* World = GetWorld();
 
-	AWalkingPlane* NewWalkingPlane = World->SpawnActor<AWalkingPlane>(WalkingPlaneClass, FVector(0, 0, 20), FRotator(0,0,0));
+	InputManager = World->SpawnActor<AInputManager>(InputManagerClass, FVector(0, 0, 20), FRotator(0,0,0));
 
-	WalkingPlane = NewWalkingPlane;
+	WalkingPlane = World->SpawnActor<AWalkingPlane>(WalkingPlaneClass, WalkingPlaneSpawnLocation, FRotator(0,0,0));
 
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	
@@ -98,12 +96,12 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 		}
 	}*/
 	
-	if (GroundTileClass)
+	/*if (GroundTileClass)
 	{
 		LaneSwitchValues.Add(-255);
 		LaneSwitchValues.Add(0);
 		LaneSwitchValues.Add(255);	
-	}
+	}*/
 
 	CreateInitialGroundTiles();
 
@@ -115,30 +113,19 @@ void AFG_EndlessRunnerGameMode::BeginPlay()
 	// Add the widget to the viewport
 	UI->AddToViewport();
 
-	UpdateScore(0);
+	UpdateScore(0, 0);
+	UpdateScore(1, 0);
 }
 
 void AFG_EndlessRunnerGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (IsGameOver || IsPaused()) return;
+
 	Speed += SpeedIncrease;
-	UpdateScore(SpeedIncrease);
-
-	if (Player && !CanSwitchLanes)
-	{
-		FVector CurrentPos = Player->GetActorLocation();
-		float NewY = LaneSwitchValues[CurrentLaneIndex];
-		FVector LerpTarget = FVector(CurrentPos.X, NewY, CurrentPos.Z);
-		FVector NewPos = FMath::Lerp(CurrentPos, LerpTarget, DeltaSeconds * LanesSwitchingSpeed);
-		Player->SetActorLocation(NewPos);
-
-		if (FVector::DistSquared(CurrentPos, LerpTarget) < .3f)
-		{
-			CanSwitchLanes = true;
-			Player->SetActorLocation(LerpTarget);
-		}
-	}
+	UpdateScore(0, SpeedIncrease);
+	UpdateScore(1, SpeedIncrease);
 }
 
 void AFG_EndlessRunnerGameMode::TogglePhysics(bool Value)
@@ -147,7 +134,7 @@ void AFG_EndlessRunnerGameMode::TogglePhysics(bool Value)
 	FString PhysicsState = bIsSimulatingPhysics ? TEXT("true") : TEXT("false");
 	
 	Player->GetCapsuleComponent()->SetSimulatePhysics(Value);
-	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, FString::Printf(TEXT("IsSimulatingPhysics: %s"), *PhysicsState));
+	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, FString::Printf(TEXT("IsSimulatingPhysics: %s"), *PhysicsState));
 }
 
 void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
@@ -168,16 +155,6 @@ void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
 		SpawnObstacles(SpawnedTile, 0);
 		SpawnObstacles(SpawnedTile, 1);
 		SpawnObstacles(SpawnedTile, 2);
-	}
-}
-
-void AFG_EndlessRunnerGameMode::SwitchToLane(int LaneIndex)
-{
-	float TargetY = LaneSwitchValues[LaneIndex];
-    
-	if (Player && CanSwitchLanes)
-	{
-		CanSwitchLanes = false;
 	}
 }
 
@@ -260,31 +237,27 @@ void AFG_EndlessRunnerGameMode::RemoveRandomObstacle()
 {
 	const int RandInt = FMath::RandRange(1, GroundTiles.Num() - 1);
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,
-			"Chosen Tile: " + GroundTiles[RandInt]->GetName());
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black, "Chosen Tile: " + GroundTiles[RandInt]->GetName());
 
 	const int TileObstacleCount = GroundTiles[RandInt]->Obstacles.Num() - 1;
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,
-			"Original Tile Obstacle Count: " + TileObstacleCount);
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,"Original Tile Obstacle Count: " + TileObstacleCount);
 
 	const int RandomObstacleIndex = FMath::RandRange(0, TileObstacleCount - 1);
 
 	ABaseObstacle* ObstacleToDestroy;
 	
-	if (GroundTiles[RandInt]->Obstacles.Num() <= 0)
+	if (GroundTiles[RandInt]->Obstacles.Num() <= 1)
 	{
 		return;
 	}
-	else
-	{
-		ObstacleToDestroy = GroundTiles[RandInt]->Obstacles[RandomObstacleIndex];
-	}
+	
+	ObstacleToDestroy = GroundTiles[RandInt]->Obstacles[RandomObstacleIndex];
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,
+	/*GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,
 			"Removed: " + GroundTiles[RandInt]->Obstacles[RandomObstacleIndex]->GetName() + " from tile: " + GroundTiles[RandInt]->GetName());
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black, "Had " + FString::FromInt(TileObstacleCount + 1) + " has " + FString::FromInt(GroundTiles[RandInt]->Obstacles.Num() - 1));
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black, "Had " + FString::FromInt(TileObstacleCount + 1) + " has " + FString::FromInt(GroundTiles[RandInt]->Obstacles.Num() - 1));*/
 
 	GroundTiles[RandInt]->Obstacles.RemoveAt(RandomObstacleIndex);
 
@@ -296,6 +269,7 @@ void AFG_EndlessRunnerGameMode::RecycleTile(AGroundTile* Tile)
 	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Recycling: " + Tile->GetName());
 	ClearObstacles(Tile);
 	Tile->AnyObstacleHit = false;
+	Tile->GroundTriggerBox->SetGenerateOverlapEvents(true);
 	
 	int32 lastIndex = GroundTiles.Num() - 1;
 	Tile->SetActorLocation(GroundTiles[lastIndex]->AttachPoint->GetComponentLocation());
@@ -308,46 +282,123 @@ void AFG_EndlessRunnerGameMode::RecycleTile(AGroundTile* Tile)
 	SpawnObstacles(Tile, 2);
 }
 
-void AFG_EndlessRunnerGameMode::UpdateLives(int Value)
+void AFG_EndlessRunnerGameMode::GameOver()
 {
-	Lives = FMath::Max(Lives + Value, 0);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->bShowMouseCursor = true;
+	
+	IsGameOver = true;
 
-	if (Lives <= 0)
+	if(GameOverClass)
 	{
-		// Get the current level's name
-		FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this, true);
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		
+		UUserWidget* Widget = CreateWidget(GetWorld(), GameOverClass);
 
-		// Open the level again to reset it
-		UGameplayStatics::OpenLevel(this, *CurrentLevelName);
+		if(Widget)
+		{
+			Widget->AddToViewport();
+
+			auto WinningPlayer = ScoreP1 > ScoreP2 ? 1 : 2;
+			
+			Cast<UGameOver>(Widget)->PlayerWinText->SetText(FText::FromString("Player " + FString::FromInt(WinningPlayer) + " Wins!"));
+			Cast<UGameOver>(Widget)->ScoreText->SetText(FText::FromString("Score: " + FString::FromInt(FMath::Max(ScoreP1, ScoreP2))));
+		}
 	}
 	
-	const UOverlay* LivesOverlay = Cast<UOverlay>(UI->GetWidgetFromName(TEXT("LivesOverlay")));
-	GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesOverlay->GetName());
-	UCanvasPanelSlot* LivesImageSlot = Cast<UCanvasPanelSlot>(LivesOverlay->Slot);
-	GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesImageSlot->GetName());
-	GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
-	LivesImageSlot->SetSize(FVector2D(Lives * 50, LivesImageSlot->GetSize().Y));
-	GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
-}
+	UEndlessRunnerSaveGame* SaveGame = UEndlessRunnerSaveGame::LoadScore();
 
-void AFG_EndlessRunnerGameMode::UpdateScore(float Value)
-{
-	Score = FMath::Max(Score + Value, 0);
+	if (ScoreP1 || ScoreP2 > SaveGame->HighScore)
+	{
+		SaveGame->SaveScore(FMath::Max(ScoreP1, ScoreP2));	
+	}
 	
-	UTextBlock* ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText")));
-	ScoreTextBlock->SetText(FText::FromString(FString::FromInt(Score)));
+	//UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
-void AFG_EndlessRunnerGameMode::TogglePlayerInvincibility(bool Value)
+void AFG_EndlessRunnerGameMode::RestartLevel()
+{
+	if (!IsGameOver) return;
+	
+	// Get the current level's name
+	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this, true);
+
+	// Open the level again to reset it
+	UGameplayStatics::OpenLevel(this, *CurrentLevelName);
+
+	IsGameOver = false;
+
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+}
+
+void AFG_EndlessRunnerGameMode::UpdateLives(int PlayerID, int Value)
+{
+	const UOverlay* LivesOverlay;
+	UCanvasPanelSlot* LivesImageSlot;
+	
+	switch (PlayerID)
+	{
+	case 0:
+		LivesP1 = FMath::Max(LivesP1 + Value, 0);
+
+		LivesOverlay = Cast<UOverlay>(UI->GetWidgetFromName(TEXT("LivesOverlay1")));
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesOverlay->GetName());
+		LivesImageSlot = Cast<UCanvasPanelSlot>(LivesOverlay->Slot);
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesImageSlot->GetName());
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+		LivesImageSlot->SetSize(FVector2D(LivesP1 * 50, LivesImageSlot->GetSize().Y));
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+		break;
+		
+	case 1:
+		LivesP2 = FMath::Max(LivesP2 + Value, 0);
+
+		LivesOverlay = Cast<UOverlay>(UI->GetWidgetFromName(TEXT("LivesOverlay2")));
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesOverlay->GetName());
+		LivesImageSlot = Cast<UCanvasPanelSlot>(LivesOverlay->Slot);
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesImageSlot->GetName());
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+		LivesImageSlot->SetSize(FVector2D(LivesP2 * 50, LivesImageSlot->GetSize().Y));
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+		break;
+	}
+
+	if (LivesP1 <= 0 || LivesP2 <= 0)
+	{
+		GameOver();
+	}
+}
+
+void AFG_EndlessRunnerGameMode::UpdateScore(int PlayerID, float Value)
+{
+	UTextBlock* ScoreTextBlock;
+	
+	switch (PlayerID)
+	{
+	case 0:
+		ScoreP1 = FMath::Max(ScoreP1 + Value, 0);
+		ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText1")));
+		ScoreTextBlock->SetText(FText::FromString(FString::FromInt(ScoreP1)));
+		break;
+		
+	case 1:
+		ScoreP2 = FMath::Max(ScoreP2 + Value, 0);
+		ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText2")));
+		ScoreTextBlock->SetText(FText::FromString(FString::FromInt(ScoreP2)));
+		break;
+	}
+}
+
+void AFG_EndlessRunnerGameMode::TogglePlayerInvincibility(int PlayerID, bool Value)
 {
 	if (Player)
 	{
-		Player->bIsInvincible = Value;
+		AFG_EndlessRunnerCharacter* PlayerReference = Cast<AFG_EndlessRunnerCharacter>(InputManager->Characters[PlayerID]);
+		PlayerReference->bIsInvincible = Value;
 
 		FTimerHandle DestroyTimerHandle;
 
-		GetWorldTimerManager().SetTimer(DestroyTimerHandle, [this, Value]() {
-			Player->bIsInvincible = !Value;
+		GetWorldTimerManager().SetTimer(DestroyTimerHandle, [this, Value, PlayerReference]() {
+			PlayerReference->bIsInvincible = !Value;
 		}, InvincibilityDuration, false);
 	}
 }
@@ -365,7 +416,25 @@ void AFG_EndlessRunnerGameMode::ClearObstacles(AGroundTile* Tile)
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Yellow, "Clearing obstacles from " + Tile->GetName());
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Yellow, "Clearing obstacles from " + Tile->GetName());
+}
+
+void AFG_EndlessRunnerGameMode::PauseGame()
+{
+	if (PauseMenuClass)
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	
+		UUserWidget* Widget = CreateWidget(GetWorld(), PauseMenuClass);
+
+		if(Widget)
+		{
+			Widget->AddToViewport();
+		}
+
+		APlayerController* PlayerControllerRef = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		PlayerControllerRef->SetShowMouseCursor(true);
+	}
 }
 
 

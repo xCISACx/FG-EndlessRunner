@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseObstacle.h"
 #include "FG_EndlessRunnerCharacter.h"
+#include "InputManager.h"
 #include "WalkingPlane.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/GameModeBase.h"
@@ -22,6 +23,9 @@ public:
 	AFG_EndlessRunnerGameMode();
 
 	UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<AInputManager> InputManagerClass;
+
+	UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<AGroundTile> GroundTileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
@@ -35,6 +39,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<ABaseObstacle> TallObstacleClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Config")
+	TSubclassOf<UUserWidget> GameOverClass;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<UUserWidget> UIBlueprint;
@@ -55,10 +65,10 @@ public:
 	TArray<float> LaneSwitchValues;
 	
 	UPROPERTY(EditAnywhere, Category = "Runtime")
-	int CurrentLaneIndex;
+	int CurrentLaneIndexP1;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
-	bool CanSwitchLanes;
+	int CurrentLaneIndexP2;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	float LanesSwitchingSpeed = 0.5f;
@@ -78,8 +88,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Config")
 	AWalkingPlane* WalkingPlane;
 
+	UPROPERTY(EditAnywhere, Category = "Config")
+	FVector WalkingPlaneSpawnLocation;
+
+	UPROPERTY(EditAnywhere, Category = "Config")
+	AInputManager* InputManager;
+
 	UPROPERTY(EditAnywhere, Category = "Runtime")
-	float Score = 0;
+	float ScoreP1 = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	float ScoreP2 = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	int ScoreIncrease;
@@ -103,19 +122,22 @@ public:
 	UUserWidget* UI;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
-	int Lives = 3;
+	int LivesP1 = 3;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	int LivesP2 = 3;
 	
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	float InvincibilityDuration = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Runtime")
+	bool IsGameOver;
 
 	UFUNCTION(BlueprintCallable)
 	void TogglePhysics(bool Value);
 
 	UFUNCTION(BlueprintCallable)
 	void CreateInitialGroundTiles();
-
-	UFUNCTION(BlueprintCallable)
-	void SwitchToLane(int Value);
 
 	UFUNCTION(BlueprintCallable)
 	AGroundTile* SpawnGroundTile();
@@ -130,16 +152,21 @@ public:
 	void RecycleTile(AGroundTile* Tile);
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateLives(int Value);
+	void GameOver();
+	void RestartLevel();
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateScore(float Value);
+	void UpdateLives(int PlayerID, int Value);
 
 	UFUNCTION(BlueprintCallable)
-	void TogglePlayerInvincibility(bool Value);
+	void UpdateScore(int PlayerID, float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void TogglePlayerInvincibility(int PlayerID, bool Value);
 
 	UFUNCTION(BlueprintCallable)
 	void ClearObstacles(AGroundTile* Tile);
+	void PauseGame();
 
 protected:
 	virtual void BeginPlay() override;
