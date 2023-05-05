@@ -14,24 +14,6 @@ AWalkingPlane::AWalkingPlane()
 	MeshComponent->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Plane.Plane")));
 
 	RootComponent = MeshComponent;
-
-	/*// Create a new sphere component
-	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Component"));
-
-	// Set its collision properties
-	BoxComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-
-	// Set its size and location
-	BoxComponent->SetSphereRadius(50.f);
-	BoxComponent->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
-
-	// Attach it to the actor's root component
-	BoxComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-
-	// Enable physics simulation for the component
-	BoxComponent->SetSimulatePhysics(true);
-	
-	RootComponent = BoxComponent;*/
 }
 
 // Called when the game starts or when spawned

@@ -47,13 +47,9 @@ void ABaseObstacle::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedCo
 {
 	if (OtherActor == this && OtherActor == GetOwner()) return;
 
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherActor->GetName() + " hit an obstacle");
-
 	if (OtherActor->ActorHasTag("Player"))
 	{
 		AFG_EndlessRunnerCharacter* Player = Cast<AFG_EndlessRunnerCharacter>(OtherActor);
-		
-		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "hit " + Player->GetName());
 		
 		if (GameMode != nullptr)
 		{
@@ -61,7 +57,6 @@ void ABaseObstacle::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedCo
 			{
 				GameMode->UpdateLives(Player->PlayerID, -1);
 				GameMode->UpdateScore(Player->PlayerID, -ScoreDecrease);
-				//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "updating lives");
 				WasHit = true;
 			}
 			GameMode->TogglePlayerInvincibility(Player->PlayerID, true);
