@@ -134,7 +134,7 @@ void AFG_EndlessRunnerCharacter::Move(const FInputActionValue& Value)
 			case 0:
 				GameMode->CurrentLaneIndexP1 += (int) sign;
 	            
-				GameMode->CurrentLaneIndexP1 = FMath::Clamp(GameMode->CurrentLaneIndexP1, 0, 2)
+				GameMode->CurrentLaneIndexP1 = FMath::Clamp(GameMode->CurrentLaneIndexP1, 0, 2);
 
 				CanSwitchLanes = false;
 			
