@@ -28,5 +28,19 @@ Known Bugs/Issues:
 
 ## Part 2
 
-Not done yet.
- 
+- Fixed jumping. cfd355285141868db0ac8874127f36f50b25ee83
+- Added sliding. cfd355285141868db0ac8874127f36f50b25ee83
+- Added UI. 22f5f18d4809b66e4c642598e69a80d47406b13a
+- Added lives. 22f5f18d4809b66e4c642598e69a80d47406b13a
+- Added score. 22f5f18d4809b66e4c642598e69a80d47406b13a
+- Added reset. 22f5f18d4809b66e4c642598e69a80d47406b13a
+- Added tall obstacles for the player to slide under. 22f5f18d4809b66e4c642598e69a80d47406b13a
+- Added obstacles despawning when player successfully dodges. 22f5f18d4809b66e4c642598e69a80d47406b13a
+- Added multiplayer. b1b3d2da4862dd8a358444e6ae50d5899b884e19
+- Added High Score saving. b1b3d2da4862dd8a358444e6ae50d5899b884e19
+- Added Main Menu. b1b3d2da4862dd8a358444e6ae50d5899b884e19
+- Added Game Over condition. b1b3d2da4862dd8a358444e6ae50d5899b884e19
+- Added Game Over screen. b1b3d2da4862dd8a358444e6ae50d5899b884e19
+- Added Pause screen. b1b3d2da4862dd8a358444e6ae50d5899b884e19
+- Cleaned up the code to remove debug messages and old code. b1ac4c41a0e48b400221bad54fbb069e5573121d
+- Fixed clearing a tile not adding points to the score. b1ac4c41a0e48b400221bad54fbb069e5573121d
