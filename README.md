@@ -1,6 +1,6 @@
 # FG-EndlessRunner
 
-This is my endless runner where you dodge ground obstacles and (soon) enemy projectiles.
+This is my endless runner where you dodge, jump and slide under obstacles.
 
 Find my binary under the Releases tab as a ZIP
 
