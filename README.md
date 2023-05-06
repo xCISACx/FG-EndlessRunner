@@ -4,6 +4,20 @@ This is my endless runner where you dodge ground obstacles and (soon) enemy proj
 
 Find my binary under the Releases tab as a ZIP
 
+Controls:
+
+Player 1:
+Jump: W or Space.
+Slide: S.
+Move: A and D.
+
+Player 2:
+Jump: Up Arrow.
+Slide: Down Arrow.
+Move: Left and Right Arrows.
+
+Pause: P
+
 ## Part 1
 
 In this first pass at the endless runner game, I have used object-oriented design to determine which class objects to create in my game. I have achieved a loose coupling of the classes by:
@@ -44,3 +58,6 @@ Known Bugs/Issues:
 - Added Pause screen. b1b3d2da4862dd8a358444e6ae50d5899b884e19
 - Cleaned up the code to remove debug messages and old code. b1ac4c41a0e48b400221bad54fbb069e5573121d
 - Fixed clearing a tile not adding points to the score. b1ac4c41a0e48b400221bad54fbb069e5573121d
+- Fixed missing reference to game over blueprint. de7f3f9a3d243d03dbb67a1256fa1bfcb066a710
+
+Known Bug: On Game Over, the displayed Winner Score will be higher than the displayed Player Score at the top, unsure why.
