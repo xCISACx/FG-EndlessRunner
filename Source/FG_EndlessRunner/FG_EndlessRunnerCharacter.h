@@ -32,30 +32,17 @@ class AFG_EndlessRunnerCharacter : public ACharacter
 public:
 	AFG_EndlessRunnerCharacter();
 
-	/*/** Jump Input Action #1#
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction;
-
-	/** Move Input Action #1#
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
-
-	/** Look Input Action #1#
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
-
-	/** Slide Input Action #1#
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* SlideAction;*/
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	int PlayerID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
-	bool bIsInvincible = false;
+	bool IsInvincible = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
-	bool bIsSliding = false;
+	bool WasHit = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision)
+	bool IsSliding = false;
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	bool CanSwitchLanes = true;
@@ -104,10 +91,8 @@ protected:
 
 protected:
 	void ResetCapsuleSize();
-	void ResetSlideState();
+
 	void StopSliding();
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	// To add mapping context
 	virtual void BeginPlay();

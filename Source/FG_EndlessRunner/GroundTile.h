@@ -62,11 +62,6 @@ public:
 	// Sets default values for this actor's properties
 	AGroundTile();
 
-	/*const FTransform& GetAttachTransform() const
-	{
-		return AttachPoint->GetComponentTransform();
-	}*/
-
 protected:
 
 	UPROPERTY(VisibleInstanceOnly)

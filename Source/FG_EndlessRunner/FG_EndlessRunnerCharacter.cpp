@@ -82,8 +82,6 @@ void AFG_EndlessRunnerCharacter::BeginPlay()
 
 	DefaultCapsuleHalfHeight = CollisionCapsule->GetUnscaledCapsuleHalfHeight();
 	DefaultCapsuleRadius = CollisionCapsule->GetUnscaledCapsuleRadius();
-	
-	//DefaultCapsuleLocation = CollisionCapsule->getlocation();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -103,7 +101,7 @@ void AFG_EndlessRunnerCharacter::Slide()
 	CollisionCapsule->SetCapsuleRadius(SlideCapsuleRadius);
 	CollisionCapsule->SetRelativeLocation(FVector(0, 0, -SlideCapsuleHalfHeight /2.f));
 
-	bIsSliding = true;
+	IsSliding = true;
 	
 	FTimerHandle SlideTimerHandle;
 
@@ -118,37 +116,12 @@ void AFG_EndlessRunnerCharacter::ResetCapsuleSize()
  	CollisionCapsule->SetCapsuleRadius(DefaultCapsuleRadius);
 	CollisionCapsule->SetRelativeLocation(FVector(0,0,0));
  
- 	bIsSliding = false;
+ 	IsSliding = false;
  }
 
 void AFG_EndlessRunnerCharacter::StopSliding()
 {
 	ResetCapsuleSize();
-}
-
-void AFG_EndlessRunnerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-	/*// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
-		//Jumping
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Bound jump");
-
-		//Moving
-		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Move);
-
-		//Sliding
-		//EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Started, this, &AFG_EndlessRunnerCharacter::Slide);
-		//EnhancedInputComponent->BindAction(SlideAction, ETriggerEvent::Completed, this, &AFG_EndlessRunnerCharacter::StopSliding);
-
-		//Looking
-		//EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AFG_EndlessRunnerCharacter::Look);
-
-	}*/
-
 }
 
 void AFG_EndlessRunnerCharacter::Move(const FInputActionValue& Value)
@@ -166,94 +139,32 @@ void AFG_EndlessRunnerCharacter::Move(const FInputActionValue& Value)
 		switch (PlayerID)
 		{
 			case 0:
-				//CurrentLaneIndex = GameMode->CurrentLaneIndexP1;
-
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, "Current Lane: " + FString::FromInt(GameMode->CurrentLaneIndexP1));
-	            
 				GameMode->CurrentLaneIndexP1 += (int) sign;
 	            
 				GameMode->CurrentLaneIndexP1 = FMath::Clamp(GameMode->CurrentLaneIndexP1, 0, 2);
 
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Purple, "New Lane: " +FString::FromInt(GameMode->CurrentLaneIndexP1));
-
 				CanSwitchLanes = false;
-			
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, FString::Printf(TEXT("CanSwitchLanes: %s"), CanSwitchLanes ? TEXT("True") : TEXT("False")));
 			
 				IsSwitchingLanes = true;
 			
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, FString::Printf(TEXT("IsSwitchingLanes: %s"), IsSwitchingLanes ? TEXT("True") : TEXT("False")));
 				break;
 
 			case 1:
-				//CurrentLaneIndex = GameMode->CurrentLaneIndexP2;
-			
 				sign = FMath::Sign(MovementVector.X);
 
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, "Current Lane 2: " + FString::FromInt(GameMode->CurrentLaneIndexP2));
-		            
 				GameMode->CurrentLaneIndexP2 += (int) sign;
 		            
 				GameMode->CurrentLaneIndexP2 = FMath::Clamp(GameMode->CurrentLaneIndexP2, 0, 2);
 
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Purple, "New Lane 2: " +FString::FromInt(GameMode->CurrentLaneIndexP2));
-
 				CanSwitchLanes = false;
-				
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, FString::Printf(TEXT("CanSwitchLanes: %s"), CanSwitchLanes ? TEXT("True") : TEXT("False")));
 				
 				IsSwitchingLanes = true;
 				
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, FString::Printf(TEXT("IsSwitchingLanes: %s"), IsSwitchingLanes ? TEXT("True") : TEXT("False")));
 				break;
 				
 			default: ;
 		}
-			
-		/*int sign = FMath::Sign(MovementVector.X);
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, "Current Lane: " + FString::FromInt(CurrentLaneIndex));
-            
-		CurrentLaneIndex += (int) sign;
-            
-		CurrentLaneIndex = FMath::Clamp(CurrentLaneIndex, 0, 2);
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Purple, "New Lane: " +FString::FromInt(CurrentLaneIndex));
-
-		CanSwitchLanes = false;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, FString::Printf(TEXT("CanSwitchLanes: %s"), CanSwitchLanes ? TEXT("True") : TEXT("False")));
-		
-		IsSwitchingLanes = true;
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, FString::Printf(TEXT("IsSwitchingLanes: %s"), IsSwitchingLanes ? TEXT("True") : TEXT("False")));*/
-
-		//FTimerHandle LaneSwitchTimerHandle;
-
-		// Set a timer to reset the capsule size after the slide duration
-		//GetWorldTimerManager().SetTimer(LaneSwitchTimerHandle, this, &AFG_EndlessRunnerCharacter::ResetLaneSwitch, GameMode->LanesSwitchingCooldown, false);
-		
-		//SwitchToLane(CurrentLaneIndex);
 	}
-
-	/*if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		//AddMovementInput(ForwardDirection, MovementVector.Y);
-		//AddMovementInput(RightDirection, MovementVector.X);
-
-		
-	}*/
 }
 
 void AFG_EndlessRunnerCharacter::ResetLaneSwitch()
@@ -281,43 +192,7 @@ void AFG_EndlessRunnerCharacter::Look(const FInputActionValue& Value)
 void AFG_EndlessRunnerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// Get a reference to the character movement component
-	UCharacterMovementComponent* MyCharacterMovement = GetCharacterMovement();
-
-	// Print the values of the jumping bools to the screen
-	if (MyCharacterMovement)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("IsFalling: %s"), MyCharacterMovement->IsFalling() ? TEXT("True") : TEXT("False")));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("IsJumpingAllowed: %s"), MyCharacterMovement->IsJumpAllowed() ? TEXT("True") : TEXT("False")));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("CanJump: %s"), CanJump() ? TEXT("True") : TEXT("False")));
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("IsMovingOnGround: %s"), GetCharacterMovement()->IsMovingOnGround() ? TEXT("True") : TEXT("False")));
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("CanAttemptJump: %s"), GetCharacterMovement()->CanAttemptJump() ? TEXT("True") : TEXT("False")));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("IsJumpAllowed: %s"), GetCharacterMovement()->IsJumpAllowed() ? TEXT("True") : TEXT("False")));
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-			FString::Printf(TEXT("CanEverJump: %s"), GetCharacterMovement()->CanEverJump() ? TEXT("True") : TEXT("False")));
-
-		const FString MovementModeString = UEnum::GetValueAsString(GetCharacterMovement()->MovementMode.GetValue());
-		
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("MovementMode: %s"), *MovementModeString));
-	}
-
-	/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-
-	if (AnimInstance)
-	{
-		AnimInstance->IsSliding(TEXT("bIsSliding"), true);
-	}*/
-
+	
 	if (IsSwitchingLanes)
 	{
 		FVector CurrentPos = GetActorLocation();
@@ -328,18 +203,14 @@ void AFG_EndlessRunnerCharacter::Tick(float DeltaSeconds)
 		{
 			case 0:
 				NewY = GameMode->LaneSwitchValues[GameMode->CurrentLaneIndexP1];
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Magenta, "Current Lane P1: " + FString::FromInt(GameMode->CurrentLaneIndexP1));
 				break;
 
 			case 1:	
 				NewY = GameMode->LaneSwitchValues[GameMode->CurrentLaneIndexP2];
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Magenta, "Current Lane P2 " + FString::FromInt(GameMode->CurrentLaneIndexP2));
 				break;
 				
 			default: ;
 		}
-
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Purple, "NewY: " + FString::FromInt(NewY));
 		
 		FVector LerpTarget = FVector(CurrentPos.X, NewY, CurrentPos.Z);
 		FVector NewPos = FMath::Lerp(CurrentPos, LerpTarget, DeltaSeconds * GameMode->LanesSwitchingSpeed);
@@ -357,7 +228,6 @@ void AFG_EndlessRunnerCharacter::Jump()
 {
 	if (GameMode->IsGameOver) return;
 	
-	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Blue, "JUMP");
 	Super::Jump();
 	
 	if (CanJump())
@@ -369,15 +239,10 @@ void AFG_EndlessRunnerCharacter::Jump()
 void AFG_EndlessRunnerCharacter::OnTriggerBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "AAAAAAAAAAAAAAAAAAAAA");
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherActor->GetName());
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherComp->GetName())
-
 	if (OtherComp->ComponentHasTag("GroundTriggerBox"))
 	{
 		OtherComp->SetGenerateOverlapEvents(false);
 		AGroundTile* Tile = Cast<AGroundTile>(OtherActor);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, "Passed by: " + OtherActor->GetName());
 
 		if (Tile)
 		{
@@ -389,14 +254,9 @@ void AFG_EndlessRunnerCharacter::OnTriggerBoxOverlap(UPrimitiveComponent* Overla
 void AFG_EndlessRunnerCharacter::OnCollisionBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "AAAAAAAAAAAAAAAAAAAAA");
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherActor->GetName() + " aaaaaaaaaa");
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, OtherComp->GetName());
-
 	if (OtherComp->ComponentHasTag("GroundTriggerBox"))
 	{
 		AGroundTile* Tile = Cast<AGroundTile>(OtherActor);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, "Passed by: " + OtherActor->GetName());
 
 		if (Tile)
 		{
@@ -410,7 +270,7 @@ void AFG_EndlessRunnerCharacter::OnCollisionBoxOverlap(UPrimitiveComponent* Over
 					}
 				}
 				
-				if (Tile->Obstacles.Num() > 1 && !Tile->AnyObstacleHit)
+				if (Tile->Obstacles.Num() > 1 && !WasHit)
 				{
 					GameMode->UpdateScore(PlayerID, +GameMode->ScoreIncrease);
 					
@@ -431,8 +291,6 @@ void AFG_EndlessRunnerCharacter::OnCollisionBoxOverlap(UPrimitiveComponent* Over
 					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Not removing obstacle since player didn't dodge");
 				}
 			}
-			
-			//GameMode->RecycleTile(Tile);
 		}
 	}
 }

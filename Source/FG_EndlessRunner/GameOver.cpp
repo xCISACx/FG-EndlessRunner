@@ -40,7 +40,7 @@ void UGameOver::RestartGame()
 
 	if(World)
 	{
-		UGameplayStatics::OpenLevel(World, TEXT("Main"));
+		UGameplayStatics::OpenLevel(World, TEXT("ThirdPersonMap"));
 	}
 }
 

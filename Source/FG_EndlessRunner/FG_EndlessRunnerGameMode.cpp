@@ -45,63 +45,16 @@ AFG_EndlessRunnerGameMode::AFG_EndlessRunnerGameMode()
 void AFG_EndlessRunnerGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	/*FTimerHandle TimerHandle1, TimerHandle2;
-
-	//This needs to be done because the character won't recognise it's grounded unless the state of SimulatePhysics is reset.
-
-	bool bValue = false;
-	
-	// Wait for 1 second, then toggle physics to true
-	GetWorldTimerManager().SetTimer(TimerHandle1, [this, bValue]() { TogglePhysics(bValue); }, 0.2f, false);
-
-	bValue = true;
-	
-	// Wait for another second, then toggle physics to false
-	GetWorldTimerManager().SetTimer(TimerHandle2, [this, bValue]() { TogglePhysics(bValue); }, 0.3f, false);*/
 
 	UWorld* World = GetWorld();
 
 	InputManager = World->SpawnActor<AInputManager>(InputManagerClass, FVector(0, 0, 20), FRotator(0,0,0));
 
 	WalkingPlane = World->SpawnActor<AWalkingPlane>(WalkingPlaneClass, WalkingPlaneSpawnLocation, FRotator(0,0,0));
-
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	
-	AFG_EndlessRunnerCharacter* MyPlayer = Cast<AFG_EndlessRunnerCharacter>(PlayerCharacter);
-
-	if (MyPlayer != nullptr)
-	{
-		// Assign the player to the player property
-		Player = MyPlayer;
-		/*Player->GetCapsuleComponent()->SetSimulatePhysics(false);
-		Player->GetCapsuleComponent()->SetSimulatePhysics(true);*/
-	}
-
 	AGroundTilesParent* NewGroundTilesParent = World->SpawnActor<AGroundTilesParent>(GroundTilesParentClass, NextSpawnPoint);
 
 	GroundTilesParent = NewGroundTilesParent;
-
-	/*AUIActor* UIActor = GetWorld()->SpawnActor<AUIActor>(AUIActor::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, FActorSpawnParameters());
-
-	UUserWidget* UI = CreateWidget<UUserWidget>(UIActor, UIWidgetClass);
-
-	if (UI)
-	{
-		LivesText = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("LivesText")));
-		
-		if (LivesText)
-		{
-			LivesText->SetText(FText::FromString("Lives: " + FString::FromInt(Lives)));
-		}
-	}*/
-	
-	/*if (GroundTileClass)
-	{
-		LaneSwitchValues.Add(-255);
-		LaneSwitchValues.Add(0);
-		LaneSwitchValues.Add(255);	
-	}*/
 
 	CreateInitialGroundTiles();
 
@@ -126,15 +79,6 @@ void AFG_EndlessRunnerGameMode::Tick(float DeltaSeconds)
 	Speed += SpeedIncrease;
 	UpdateScore(0, SpeedIncrease);
 	UpdateScore(1, SpeedIncrease);
-}
-
-void AFG_EndlessRunnerGameMode::TogglePhysics(bool Value)
-{
-	bool bIsSimulatingPhysics = Player->GetCapsuleComponent()->IsSimulatingPhysics();
-	FString PhysicsState = bIsSimulatingPhysics ? TEXT("true") : TEXT("false");
-	
-	Player->GetCapsuleComponent()->SetSimulatePhysics(Value);
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, FString::Printf(TEXT("IsSimulatingPhysics: %s"), *PhysicsState));
 }
 
 void AFG_EndlessRunnerGameMode::CreateInitialGroundTiles()
@@ -172,7 +116,6 @@ AGroundTile* AFG_EndlessRunnerGameMode::SpawnGroundTile()
 		}
 
 		Tile->AttachToComponent(GroundTilesParent->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
-		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Parented " + Tile->GetName() + " to ground tiles parent.");
 
 		GroundTiles.Add(Tile);
 
@@ -227,8 +170,6 @@ void AFG_EndlessRunnerGameMode::SpawnObstacles(AGroundTile* Tile, int laneIndex)
 			}
 			
 			Tile->Obstacles.Add(Obstacle);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Spawning obstacle on : " + Tile->GetName());
 		}
 	}
 }
@@ -237,11 +178,7 @@ void AFG_EndlessRunnerGameMode::RemoveRandomObstacle()
 {
 	const int RandInt = FMath::RandRange(1, GroundTiles.Num() - 1);
 
-	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black, "Chosen Tile: " + GroundTiles[RandInt]->GetName());
-
 	const int TileObstacleCount = GroundTiles[RandInt]->Obstacles.Num() - 1;
-
-	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,"Original Tile Obstacle Count: " + TileObstacleCount);
 
 	const int RandomObstacleIndex = FMath::RandRange(0, TileObstacleCount - 1);
 
@@ -253,12 +190,7 @@ void AFG_EndlessRunnerGameMode::RemoveRandomObstacle()
 	}
 	
 	ObstacleToDestroy = GroundTiles[RandInt]->Obstacles[RandomObstacleIndex];
-
-	/*GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black,
-			"Removed: " + GroundTiles[RandInt]->Obstacles[RandomObstacleIndex]->GetName() + " from tile: " + GroundTiles[RandInt]->GetName());
-
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Black, "Had " + FString::FromInt(TileObstacleCount + 1) + " has " + FString::FromInt(GroundTiles[RandInt]->Obstacles.Num() - 1));*/
-
+	
 	GroundTiles[RandInt]->Obstacles.RemoveAt(RandomObstacleIndex);
 
 	ObstacleToDestroy->Destroy();
@@ -266,14 +198,12 @@ void AFG_EndlessRunnerGameMode::RemoveRandomObstacle()
 
 void AFG_EndlessRunnerGameMode::RecycleTile(AGroundTile* Tile)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Recycling: " + Tile->GetName());
 	ClearObstacles(Tile);
 	Tile->AnyObstacleHit = false;
 	Tile->GroundTriggerBox->SetGenerateOverlapEvents(true);
 	
 	int32 lastIndex = GroundTiles.Num() - 1;
 	Tile->SetActorLocation(GroundTiles[lastIndex]->AttachPoint->GetComponentLocation());
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, GroundTiles[lastIndex]->AttachPoint->GetComponentLocation().ToString());
 	GroundTiles.Remove(Tile);
 	GroundTiles.Add(Tile);
 
@@ -311,8 +241,6 @@ void AFG_EndlessRunnerGameMode::GameOver()
 	{
 		SaveGame->SaveScore(FMath::Max(ScoreP1, ScoreP2));	
 	}
-	
-	//UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
 void AFG_EndlessRunnerGameMode::RestartLevel()
@@ -341,24 +269,21 @@ void AFG_EndlessRunnerGameMode::UpdateLives(int PlayerID, int Value)
 		LivesP1 = FMath::Max(LivesP1 + Value, 0);
 
 		LivesOverlay = Cast<UOverlay>(UI->GetWidgetFromName(TEXT("LivesOverlay1")));
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesOverlay->GetName());
+
 		LivesImageSlot = Cast<UCanvasPanelSlot>(LivesOverlay->Slot);
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesImageSlot->GetName());
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+
 		LivesImageSlot->SetSize(FVector2D(LivesP1 * 50, LivesImageSlot->GetSize().Y));
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+
 		break;
 		
 	case 1:
 		LivesP2 = FMath::Max(LivesP2 + Value, 0);
 
 		LivesOverlay = Cast<UOverlay>(UI->GetWidgetFromName(TEXT("LivesOverlay2")));
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesOverlay->GetName());
+
 		LivesImageSlot = Cast<UCanvasPanelSlot>(LivesOverlay->Slot);
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, LivesImageSlot->GetName());
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
+
 		LivesImageSlot->SetSize(FVector2D(LivesP2 * 50, LivesImageSlot->GetSize().Y));
-		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Orange, FString::FromInt(LivesImageSlot->GetSize().X));
 		break;
 	}
 
@@ -374,33 +299,40 @@ void AFG_EndlessRunnerGameMode::UpdateScore(int PlayerID, float Value)
 	
 	switch (PlayerID)
 	{
-	case 0:
-		ScoreP1 = FMath::Max(ScoreP1 + Value, 0);
-		ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText1")));
-		ScoreTextBlock->SetText(FText::FromString(FString::FromInt(ScoreP1)));
-		break;
-		
-	case 1:
-		ScoreP2 = FMath::Max(ScoreP2 + Value, 0);
-		ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText2")));
-		ScoreTextBlock->SetText(FText::FromString(FString::FromInt(ScoreP2)));
-		break;
+		case 0:
+			ScoreP1 = FMath::Max(ScoreP1 + Value, 0);
+			ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText1")));
+			ScoreTextBlock->SetText(FText::FromString(FString::FromInt(ScoreP1)));
+			break;
+			
+		case 1:
+			ScoreP2 = FMath::Max(ScoreP2 + Value, 0);
+			ScoreTextBlock = Cast<UTextBlock>(UI->GetWidgetFromName(TEXT("ScoreText2")));
+			ScoreTextBlock->SetText(FText::FromString(FString::FromInt(ScoreP2)));
+			break;
+		default: ;
 	}
 }
 
 void AFG_EndlessRunnerGameMode::TogglePlayerInvincibility(int PlayerID, bool Value)
 {
-	if (Player)
-	{
-		AFG_EndlessRunnerCharacter* PlayerReference = Cast<AFG_EndlessRunnerCharacter>(InputManager->Characters[PlayerID]);
-		PlayerReference->bIsInvincible = Value;
+	AFG_EndlessRunnerCharacter* PlayerReference = Cast<AFG_EndlessRunnerCharacter>(InputManager->Characters[PlayerID]);
+	
+	PlayerReference->IsInvincible = Value;
+	PlayerReference->WasHit = true;
 
-		FTimerHandle DestroyTimerHandle;
+	FTimerHandle InvTimerHandle;
 
-		GetWorldTimerManager().SetTimer(DestroyTimerHandle, [this, Value, PlayerReference]() {
-			PlayerReference->bIsInvincible = !Value;
-		}, InvincibilityDuration, false);
-	}
+	GetWorldTimerManager().SetTimer(InvTimerHandle, [this, Value, PlayerReference]() {
+		PlayerReference->IsInvincible = !Value;
+	}, InvincibilityDuration, false);
+	
+	FTimerHandle HitTimerHandle;
+
+	GetWorldTimerManager().SetTimer(HitTimerHandle, [this, PlayerReference]() {
+		PlayerReference->WasHit = false;
+	}, 1.f, false);
+	
 }
 
 void AFG_EndlessRunnerGameMode::ClearObstacles(AGroundTile* Tile)
@@ -415,8 +347,6 @@ void AFG_EndlessRunnerGameMode::ClearObstacles(AGroundTile* Tile)
 			Obstacle->Destroy();
 		}
 	}
-
-	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Yellow, "Clearing obstacles from " + Tile->GetName());
 }
 
 void AFG_EndlessRunnerGameMode::PauseGame()

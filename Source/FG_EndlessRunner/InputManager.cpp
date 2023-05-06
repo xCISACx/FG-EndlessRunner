@@ -57,14 +57,6 @@ void AInputManager::Tick(float DeltaTime)
 void AInputManager::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	/*PlayerInputComponent->BindAxis("XAxisP1", this, &AInputManager::MoveP1);
-	PlayerInputComponent->BindAction("JumpP1", EInputEvent::IE_Pressed, this, &AInputManager::JumpP1);
-	PlayerInputComponent->BindAction("SlideP1", EInputEvent::IE_Pressed, this, &AInputManager::SlideP1);
-		
-	PlayerInputComponent->BindAxis("XAxisP2", this, &AInputManager::MoveP2);
-	PlayerInputComponent->BindAction("JumpP2", EInputEvent::IE_Pressed, this, &AInputManager::JumpP2);
-	PlayerInputComponent->BindAction("SlideP2", EInputEvent::IE_Pressed, this, &AInputManager::SlideP2);*/
 	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
@@ -82,8 +74,7 @@ void AInputManager::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		//Jumping
 		EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Started, this, &AInputManager::JumpP2);
 		EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Completed, this, &AInputManager::StopJumpingP2);
-
-		//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "Bound jump");
+		
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AInputManager::MoveP1);
@@ -103,27 +94,21 @@ void AInputManager::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AInputManager::MoveP1(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "MoveP1");
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Cyan, FString::FromInt(Value.Get<FVector2D>().X));
 	Player1->Move(Value);
 }
 
 void AInputManager::MoveP2(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "MoveP2");
-	GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Cyan, FString::FromInt(Value.Get<FVector2D>().X));
 	Player2->Move(Value);
 }
 
 void AInputManager::JumpP1()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "JumpP1");
 	Player1->Jump();
 }
 
 void AInputManager::JumpP2()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 99.0f, FColor::Yellow, "JumpP2");
 	Player2->Jump();
 }
 

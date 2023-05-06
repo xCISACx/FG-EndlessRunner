@@ -49,12 +49,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Config")
 	TSubclassOf<UUserWidget> UIBlueprint;
 
-	/*UPROPERTY(EditAnywhere, Category = "Config")
-	TSubclassOf<UUserWidget> UIWidgetClass;*/
-
-	/*UPROPERTY(EditAnywhere, Category = "Config")
-	UTextBlock* LivesText;*/
-
 	UPROPERTY(EditAnywhere, Category = "Config")
 	int32 NumInitialGroundTiles = 10;
 
@@ -104,7 +98,10 @@ public:
 	int ScoreIncrease;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
-	float Speed = 600.f;
+	float Speed = 1000.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Config")
+	float DefaultSpeed = 1000.f;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
 	float MaxSpeed = 6000.f;
@@ -114,9 +111,6 @@ public:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
 	TArray<AGroundTile*> GroundTiles;
-
-	UPROPERTY(VisibleInstanceOnly, Category = "Runtime")
-	AFG_EndlessRunnerCharacter* Player;
 
 	UPROPERTY(EditAnywhere, Category = "Config")
 	UUserWidget* UI;
@@ -132,9 +126,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Runtime")
 	bool IsGameOver;
-
-	UFUNCTION(BlueprintCallable)
-	void TogglePhysics(bool Value);
 
 	UFUNCTION(BlueprintCallable)
 	void CreateInitialGroundTiles();

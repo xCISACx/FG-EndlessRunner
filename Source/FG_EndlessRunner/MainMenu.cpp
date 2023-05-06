@@ -22,21 +22,16 @@ void UMainMenu::NativeConstruct()
 		QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 	}
 	
-	UEndlessRunnerSaveGame* SaveGameInstance = Cast<UEndlessRunnerSaveGame>(UGameplayStatics::LoadGameFromSlot("HighScore", 0));
+	UEndlessRunnerSaveGame* SaveGameInstance = Cast<UEndlessRunnerSaveGame>(UGameplayStatics::LoadGameFromSlot("MySave", 0));
 	
 	if (SaveGameInstance)
 	{
-		HighscoreText->SetText(FText::AsNumber(SaveGameInstance->HighScore));
+		HighscoreText->SetText(FText::FromString("High Score: " + FString::FromInt(SaveGameInstance->HighScore)));
 	}
 	else
 	{
-		HighscoreText->SetText(FText::AsNumber(0));
+		HighscoreText->SetText(FText::FromString("High Score: " + FString::FromInt(0)));
 	}
-
-	UEndlessRunnerSaveGame* SaveGame = UEndlessRunnerSaveGame::LoadScore();
-	FString HighScore = "High Score: " + SaveGame->HighScore;
-	
-	HighscoreText->SetText(FText::FromString(HighScore));
 }
 
 void UMainMenu::StartGame()
@@ -45,7 +40,7 @@ void UMainMenu::StartGame()
 
 	if(World)
 	{
-		UGameplayStatics::OpenLevel(World, TEXT("Main"));
+		UGameplayStatics::OpenLevel(World, TEXT("ThirdPersonMap"));
 	}
 }
 
